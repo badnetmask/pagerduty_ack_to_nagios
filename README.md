@@ -18,11 +18,17 @@ this works for both service and host events
 sending acks to Nagios can be done via webhooks, but customers who don't
 want to open the firewall to incoming HTTP traffic will like this alternative
 
-works only with PagerDuty's V2 API token
+works only with PagerDuty's V2 API token. the token needs to be either passed as a command line argument,
+or stored in a key file. the options for this are:
 
-set up a cron like so:
+    --pagerduty_token <_token> | -p <_token>
+    --pagerduty_token_file <_file> | -f <_file> (default /etc/nagios/pd_ack_to_nagios_ack_poller.key)
 
-    * * * * * nagios /usr/local/bin/pd_ack_to_nagios_ack_poller.pl -p [my_pagerduty_token]
+if a token is passed on the command line, the token file is ignored, if no token is passed, then the token file is required.
+
+once you decide that, set up a cron like so:
+
+    * * * * * nagios /usr/local/bin/pd_ack_to_nagios_ack_poller.pl
 
 note this will generally need to be run as the nagios user so that it has write access to the nagios command pipe.
 

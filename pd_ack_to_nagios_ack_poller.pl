@@ -44,6 +44,7 @@ my(@opts)=('debug',
            'nagios_status_file|s=s',
            'nagios_command_pipe|c=s',
            'pagerduty_token|p=s',
+           'pagerduty_token_file|f=s',
            'pagerduty_service|n=s',
            'last_id_file|l=s',
            'last_id=i',
@@ -62,6 +63,7 @@ options:
  --nagios_status_file <_file> | -s <_file> (default /var/cache/nagios/status.dat)
  --nagios_command_pipe <_file> | -c <_file> (default /var/spool/nagios/cmd/nagios.cmd)
  --pagerduty_token <_token> | -p <_token>
+ --pagerduty_token_file <_file> | -f <_file> (default /etc/nagios/pd_ack_to_nagios_ack_poller.key)
  --pagerduty_service <_service> | -n <_service> (limit to a comma separated list of service ids)
  --last_id_file <_file> | -l <_file> (default /tmp/pd_ack_to_nagios_ack_poller.last_id)
  --last_id <_id> (overrides and skips saving to last_id_file)
@@ -78,7 +80,15 @@ die "can't access last_id_file $opts{last_id_file}"
    if(!defined($opts{last_id}) &&
       (-e $opts{last_id_file}) && !(-w $opts{last_id_file}));
 die "can't access pipe $opts{nagios_command_pipe}" if(!(-w $opts{nagios_command_pipe}));
-die "--pagerduty_token|-p required" unless($opts{pagerduty_token});
+
+if(!defined($opts{pagerduty_token})) {
+  $opts{pagerduty_token_file} ||= '/etc/nagios/pd_ack_to_nagios_ack_poller.key';
+  open(FILE, $opts{pagerduty_token_file}) || die "can't open pagerduty_token_file, and no token has been passed on the command line";
+  die "pagerduty_token_file is empty, and no token has been passed on the command line"
+    if(-z $opts{pagerduty_token_file});
+  $opts{pagerduty_token} = <FILE>;
+  close(FILE);
+}
 
 # optionally specify service id(s)
 my($svcparam) = "";
