@@ -88,6 +88,7 @@ if(!defined($opts{pagerduty_token})) {
     if(-z $opts{pagerduty_token_file});
   $opts{pagerduty_token} = <FILE>;
   close(FILE);
+  chomp($opts{pagerduty_token});
 }
 
 # optionally specify service id(s)
